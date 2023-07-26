@@ -2,6 +2,7 @@
 
 ### Installation initiale de l'OS vierge
 
+
 1. Installez macOS
 1. Lancez le Mac App Store et connectez-vous à votre compte
 
