@@ -244,6 +244,8 @@ end() {
 }
 
 install_zsh() {
+  rm ~/.zshrc
+  rm -rf .oh-my-zsh 
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 }
 
@@ -258,7 +260,6 @@ post_install() {
 install_java() {
   sdk install gradle 
   sdk install maven
-
 
   sdk install java 20.0.2-tem
   sdk install java 17.0.8-tem
@@ -285,6 +286,7 @@ install_brew_bundle
 update_mac_os_properties
 install_nvm
 install_python
+
 install_zsh
 
 post_install
