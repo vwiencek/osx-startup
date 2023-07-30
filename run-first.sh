@@ -8,27 +8,29 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 
 install_sdk () {
-   echo 'Installing SDKMan'
-   curl -s "https://get.sdkman.io" | bash
+  echo 'Installing SDKMan'
+
+  curl -s "https://get.sdkman.io" | bash
   source "$HOME/.sdkman/bin/sdkman-init.sh"
-  sdk install gradle 
 }
 
 install_brew() {
-    echo 'Installing Brew'
-    if test ! $(which brew)
-    then
-      echo "Installation de Homebrew"
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    fi
+  echo 'Installing Brew'
 
-    # Ajout des binaires Homebrew au PATH
-    echo '# Set PATH, MANPATH, etc., for Homebrew.' >> ~/.zprofile
-    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+  if test ! $(which brew)
+  then
+    echo "Installation de Homebrew"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  else
+    echo "Brew is already installed"
+  fi
 
-    # Mettre à jour la liste des applications disponibles
-    brew update
+  # Ajout des binaires Homebrew au PATH
+  echo '# Set PATH, MANPATH, etc., for Homebrew.' >> ~/.zprofile
+  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+
+  brew update
 }
 
 install_dropbox() {
@@ -43,16 +45,11 @@ install_brew_bundle() {
 }
 
 update_mac_os_properties() {
-  ## ************************* CONFIGURATION ********************************
   echo "Configuration de quelques paramètres par défaut"
 
-  # Fermer les fenêtres "Préférences Système"
   osascript -e 'tell application "System Preferences" to quit'
 
   ## FINDER
-
-  # Affichage de la bibliothèque
-  # chflags nohidden ~/Library
 
   # Affichage de la barre latérale
   defaults write com.apple.finder ShowStatusBar -bool true
@@ -230,7 +227,9 @@ update_mac_os_properties() {
 
 install_npm() {
   echo "Installation des outils de développement Node"
-  npm install -g npm-check-updates
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+  export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 }
 
 clean() {
@@ -244,22 +243,40 @@ end() {
   echo "ET VOILÀ !"
 }
 
-install_oh_my_zsh() {
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+install_zsh() {
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 }
 
-install_oh_my_zsh
+post_install() {
+  cp .env.sh ~/.env.sh
+
+  {
+    echo "source ~/.env.sh"
+  } >> ~/.zshrc
+}
+
+install_java() {
+  sdk install gradle 
+  sdk install maven
+}
+
+install_node() {
+  nvm install 18
+}
 
 install_brew
-
+install_zsh
 install_sdk
-
 install_dropbox
-
 install_brew_bundle
-
 update_mac_os_properties
-
 install_npm
 
 end
+
+post_install
+
+install_node
+install_java
+
+zsh

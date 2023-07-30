@@ -1,5 +1,3 @@
-# Utiliser Homebrew bundle
-
 # Taps
 tap 'homebrew/cask'
 tap 'homebrew/cask-fonts'
@@ -15,14 +13,17 @@ brew 'mas'
 
 # Réseau
 brew 'curl'
+brew 'wget'  
 brew 'dnsmasq', restart_service: true
 brew 'openssh'
 brew 'openssl'
 brew 'openvpn'
+brew 'bitwarden'
 brew 'rsync'
 brew 'wget'
 
 brew 'zsh'
+brew 'zsh-completions'
 brew 'zsh-autosuggestions'
 brew 'zsh-syntax-highlighting'
 
@@ -45,6 +46,7 @@ cask 'vlc'
 
 # Photo
 cask 'adobe-creative-cloud'
+cask 'docker'
 
 # Divertissement
 cask 'steam'
