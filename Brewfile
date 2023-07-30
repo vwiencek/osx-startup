@@ -29,10 +29,6 @@ brew 'zsh-syntax-highlighting'
 cask 'iterm2'
 cask 'jetbrains-toolbox'
 
-# Backup et synchro
-brew 'mackup'
-cask 'google-drive-file-stream'
-
 # Web
 cask 'firefox'
 cask 'google-chrome'

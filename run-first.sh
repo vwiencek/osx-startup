@@ -2,226 +2,264 @@
 
 # Demande du mot de passe administrateur dès le départ
 sudo -v
-
 # Keep-alive: met à jour le timestamp de `sudo`
 # tant que `post-install.sh` n'est pas terminé
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
-## LA BASE : Homebrew et les lignes de commande
-if test ! $(which brew)
-then
-  echo "Installation de Homebrew"
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
 
-# Ajout des binaires Homebrew au PATH
-echo '# Set PATH, MANPATH, etc., for Homebrew.' >> ~/.zprofile
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
+install_sdk () {
+   echo 'Installing SDKMan'
+   curl -s "https://get.sdkman.io" | bash
+  source "$HOME/.sdkman/bin/sdkman-init.sh"
+  sdk install gradle 
+}
 
-# Mettre à jour la liste des applications disponibles
-brew update
+install_brew() {
+    echo 'Installing Brew'
+    if test ! $(which brew)
+    then
+      echo "Installation de Homebrew"
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
 
-# Installer Dropbox au plus tôt pour lancer la synchro des settings
-brew install dropbox
-echo "Ouverture de Dropbox pour commencer la synchronisation"
-open -a Dropbox
+    # Ajout des binaires Homebrew au PATH
+    echo '# Set PATH, MANPATH, etc., for Homebrew.' >> ~/.zprofile
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# Installer les nouvelles applications du bundle Brewfile
-# et mettre à jour celles déjà présentes
-brew bundle
+    # Mettre à jour la liste des applications disponibles
+    brew update
+}
 
-echo "Installation des outils de développement Node"
-npm install -g npm-check-updates
+install_dropbox() {
+  # Installer Dropbox au plus tôt pour lancer la synchro des settings
+  brew install dropbox
+  echo "Ouverture de Dropbox pour commencer la synchronisation"
+  open -a Dropbox
+}
 
-## ************************* CONFIGURATION ********************************
-echo "Configuration de quelques paramètres par défaut"
+install_brew_bundle() {
+  brew bundle
+}
 
-# Fermer les fenêtres "Préférences Système"
-osascript -e 'tell application "System Preferences" to quit'
+update_mac_os_properties() {
+  ## ************************* CONFIGURATION ********************************
+  echo "Configuration de quelques paramètres par défaut"
 
-## FINDER
+  # Fermer les fenêtres "Préférences Système"
+  osascript -e 'tell application "System Preferences" to quit'
 
-# Affichage de la bibliothèque
-# chflags nohidden ~/Library
+  ## FINDER
 
-# Affichage de la barre latérale
-defaults write com.apple.finder ShowStatusBar -bool true
+  # Affichage de la bibliothèque
+  # chflags nohidden ~/Library
 
-# Afficher par défaut en mode colonne
-# Flwv ▸ Cover Flow View
-# Nlsv ▸ List View
-# clmv ▸ Column View
-# icnv ▸ Icon View
-defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
+  # Affichage de la barre latérale
+  defaults write com.apple.finder ShowStatusBar -bool true
 
-# Afficher le chemin d'accès
-defaults write com.apple.finder ShowPathbar -bool true
+  # Afficher par défaut en mode colonne
+  # Flwv ▸ Cover Flow View
+  # Nlsv ▸ List View
+  # clmv ▸ Column View
+  # icnv ▸ Icon View
+  defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
 
-# Affichage de toutes les extensions
-sudo defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+  # Afficher le chemin d'accès
+  defaults write com.apple.finder ShowPathbar -bool true
 
-# Afficher le dossier maison par défaut
-defaults write com.apple.finder NewWindowTarget -string "PfHm"
-defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/"
+  # Affichage de toutes les extensions
+  sudo defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
-# Supprimer les doublons dans le menu "ouvrir avec…"
-/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
+  # Afficher le dossier maison par défaut
+  defaults write com.apple.finder NewWindowTarget -string "PfHm"
+  defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/"
 
-# Recherche dans le dossier en cours par défaut
-defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+  # Supprimer les doublons dans le menu "ouvrir avec…"
+  /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
 
-# Fenêtre de sauvegarde complète par défaut
-defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+  # Recherche dans le dossier en cours par défaut
+  defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
 
-# Fenêtre d'impression complète par défaut
-defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+  # Fenêtre de sauvegarde complète par défaut
+  defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 
-# Sauvegarde sur disque (et non sur iCloud) par défaut
-defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+  # Fenêtre d'impression complète par défaut
+  defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
 
-# Coup d'œil : sélection de texte
-defaults write com.apple.finder QLEnableTextSelection -bool true
+  # Sauvegarde sur disque (et non sur iCloud) par défaut
+  defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
-# Ne pas alerter en cas de modification de l'extension d'un fichier
-defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+  # Coup d'œil : sélection de texte
+  defaults write com.apple.finder QLEnableTextSelection -bool true
 
-# Pas de création de fichiers .DS_STORE sur les disques réseau et externes
-defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
-defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+  # Ne pas alerter en cas de modification de l'extension d'un fichier
+  defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
-# Supprimer l'alerte de quarantaine des applications
-defaults write com.apple.LaunchServices LSQuarantine -bool false
+  # Pas de création de fichiers .DS_STORE sur les disques réseau et externes
+  defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+  defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
-## DOCK
+  # Supprimer l'alerte de quarantaine des applications
+  defaults write com.apple.LaunchServices LSQuarantine -bool false
 
-# Taille minimum
-defaults write com.apple.dock tilesize -int 32
+  ## DOCK
 
-# Agrandissement actif
-defaults write com.apple.dock magnification -bool true
+  # Taille minimum
+  defaults write com.apple.dock tilesize -int 32
 
-# Taille maximale pour l'agrandissement
-defaults write com.apple.dock largesize -float 128
+  # Agrandissement actif
+  defaults write com.apple.dock magnification -bool true
 
-# Ouverture accélérée
-defaults write com.apple.dock autohide-delay -float 0
-defaults write com.apple.dock autohide-time-modifier -float 0.4
+  # Taille maximale pour l'agrandissement
+  defaults write com.apple.dock largesize -float 128
 
-## MISSION CONTROL
+  # Ouverture accélérée
+  defaults write com.apple.dock autohide-delay -float 0
+  defaults write com.apple.dock autohide-time-modifier -float 0.4
 
-# Pas d'organisation des bureaux en fonction des apps ouvertes
-defaults write com.apple.dock mru-spaces -bool false
+  ## MISSION CONTROL
 
-# Mot de passe demandé immédiatement quand l'économiseur d'écran s'active
-defaults write com.apple.screensaver askForPassword -int 1
-defaults write com.apple.screensaver askForPasswordDelay -int 0
+  # Pas d'organisation des bureaux en fonction des apps ouvertes
+  defaults write com.apple.dock mru-spaces -bool false
 
-## COINS ACTIFS
+  # Mot de passe demandé immédiatement quand l'économiseur d'écran s'active
+  defaults write com.apple.screensaver askForPassword -int 1
+  defaults write com.apple.screensaver askForPasswordDelay -int 0
 
-#  0: no-op
-#  2: Mission Control
-#  3: Show application windows
-#  4: Desktop
-#  5: Start screen saver
-#  6: Disable screen saver
-#  7: Dashboard
-# 10: Put display to sleep
-# 11: Launchpad
-# 12: Notification Center
+  ## COINS ACTIFS
 
-# En haut à gauche : bureau
-# defaults write com.apple.dock wvous-tl-corner -int 4
-# defaults write com.apple.dock wvous-tl-modifier -int 0
+  #  0: no-op
+  #  2: Mission Control
+  #  3: Show application windows
+  #  4: Desktop
+  #  5: Start screen saver
+  #  6: Disable screen saver
+  #  7: Dashboard
+  # 10: Put display to sleep
+  # 11: Launchpad
+  # 12: Notification Center
 
-# En haut à droite : screensaver
-defaults write com.apple.dock wvous-tr-corner -int 5
-defaults write com.apple.dock wvous-tr-modifier -int 0
+  # En haut à gauche : bureau
+  # defaults write com.apple.dock wvous-tl-corner -int 4
+  # defaults write com.apple.dock wvous-tl-modifier -int 0
 
-# En bas à gauche : fenêtres de l'application
-# defaults write com.apple.dock wvous-bl-corner -int 3
-# defaults write com.apple.dock wvous-bl-modifier -int 0
+  # En haut à droite : screensaver
+  defaults write com.apple.dock wvous-tr-corner -int 5
+  defaults write com.apple.dock wvous-tr-modifier -int 0
 
-# En bas à droite : Mission Control
-# defaults write com.apple.dock wvous-br-corner -int 2
-# defaults write com.apple.dock wvous-br-modifier -int 0
+  # En bas à gauche : fenêtres de l'application
+  # defaults write com.apple.dock wvous-bl-corner -int 3
+  # defaults write com.apple.dock wvous-bl-modifier -int 0
 
-## CLAVIER ET TRACKPAD
+  # En bas à droite : Mission Control
+  # defaults write com.apple.dock wvous-br-corner -int 2
+  # defaults write com.apple.dock wvous-br-modifier -int 0
 
-# Accès au clavier complet (tabulation dans les boîtes de dialogue)
-sudo defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
+  ## CLAVIER ET TRACKPAD
 
-# Arrêt pop-up clavier façon iOS
-sudo defaults write -g ApplePressAndHoldEnabled -bool false
+  # Accès au clavier complet (tabulation dans les boîtes de dialogue)
+  sudo defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
-# Répétition touches plus rapide
-# sudo defaults write NSGlobalDomain KeyRepeat -int 1
-# Délai avant répétition des touches
-# sudo defaults write NSGlobalDomain InitialKeyRepeat -int 10
+  # Arrêt pop-up clavier façon iOS
+  sudo defaults write -g ApplePressAndHoldEnabled -bool false
 
-# Trackpad : toucher pour cliquer
-sudo defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-sudo defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+  # Répétition touches plus rapide
+  # sudo defaults write NSGlobalDomain KeyRepeat -int 1
+  # Délai avant répétition des touches
+  # sudo defaults write NSGlobalDomain InitialKeyRepeat -int 10
 
-# Souris : glisser une fenêtre de n'importe où avec ^ + Cmd
-defaults write -g NSWindowShouldDragOnGesture -bool true
+  # Trackpad : toucher pour cliquer
+  sudo defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+  sudo defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
-## APPS
+  # Souris : glisser une fenêtre de n'importe où avec ^ + Cmd
+  defaults write -g NSWindowShouldDragOnGesture -bool true
 
-# Vérifier la disponibilité de mise à jour quotidiennement
-defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
+  ## APPS
 
-# Vérifier les mises à jour automatiquement
-sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
+  # Vérifier la disponibilité de mise à jour quotidiennement
+  defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 
-# Safari : menu développeur / URL en bas à gauche / URL complète en haut / Do Not Track / affichage barre favoris
-defaults write com.apple.safari IncludeDevelopMenu -int 1
-defaults write com.apple.safari ShowOverlayStatusBar -int 1
-defaults write com.apple.safari ShowFullURLInSmartSearchField -int 1
-defaults write com.apple.safari SendDoNotTrackHTTPHeader -int 1
-defaults write com.apple.Safari ShowFavoritesBar -bool true
+  # Vérifier les mises à jour automatiquement
+  sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
 
-# Chrome : désactiver la navigation dans l'historique au swipe
-defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool FALSE
+  # Safari : menu développeur / URL en bas à gauche / URL complète en haut / Do Not Track / affichage barre favoris
+  defaults write com.apple.safari IncludeDevelopMenu -int 1
+  defaults write com.apple.safari ShowOverlayStatusBar -int 1
+  defaults write com.apple.safari ShowFullURLInSmartSearchField -int 1
+  defaults write com.apple.safari SendDoNotTrackHTTPHeader -int 1
+  defaults write com.apple.Safari ShowFavoritesBar -bool true
 
-# Photos : pas d'affichage pour les iPhone
-defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool YES
+  # Chrome : désactiver la navigation dans l'historique au swipe
+  defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool FALSE
 
-# TextEdit : .txt par défaut
-defaults write com.apple.TextEdit RichText -int 0
+  # Photos : pas d'affichage pour les iPhone
+  defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool YES
 
-# TextEdit : ouvre et enregistre les fichiers en UTF-8
-defaults write com.apple.TextEdit PlainTextEncoding -int 4
-defaults write com.apple.TextEdit PlainTextEncodingForWrite -int 4
+  # TextEdit : .txt par défaut
+  defaults write com.apple.TextEdit RichText -int 0
 
-## iTerm2 : ne pas afficher d'alerte à la fermeture
-defaults write com.googlecode.iterm2 PromptOnQuit -bool false
+  # TextEdit : ouvre et enregistre les fichiers en UTF-8
+  defaults write com.apple.TextEdit PlainTextEncoding -int 4
+  defaults write com.apple.TextEdit PlainTextEncodingForWrite -int 4
 
-## SONS
+  ## iTerm2 : ne pas afficher d'alerte à la fermeture
+  defaults write com.googlecode.iterm2 PromptOnQuit -bool false
 
-# Démarrer en silence
-sudo nvram SystemAudioVolume="%00"
+  ## SONS
 
-# Alertes sonores quand on modifie le volume
-sudo defaults write com.apple.systemsound com.apple.sound.beep.volume -float 1
+  # Démarrer en silence
+  sudo nvram SystemAudioVolume="%00"
 
-## IMAGES
+  # Alertes sonores quand on modifie le volume
+  sudo defaults write com.apple.systemsound com.apple.sound.beep.volume -float 1
 
-# Enregistrer les screenshots en PNG (autres options: BMP, GIF, JPG, PDF, TIFF)
-defaults write com.apple.screencapture type -string "png"
+  ## IMAGES
 
-# Mettre une ombre sur les screenshots
-defaults write com.apple.screencapture disable-shadow -bool false
+  # Enregistrer les screenshots en PNG (autres options: BMP, GIF, JPG, PDF, TIFF)
+  defaults write com.apple.screencapture type -string "png"
 
-## ************ Fin de l'installation *********
-echo "Finder et Dock relancés… redémarrage nécessaire pour terminer."
-killall Dock
-killall Finder
+  # Mettre une ombre sur les screenshots
+  defaults write com.apple.screencapture disable-shadow -bool false
 
-echo "Derniers nettoyages…"
-brew cleanup
-rm -f -r /Library/Caches/Homebrew/*
+  ## ************ Fin de l'installation *********
+  echo "Finder et Dock relancés… redémarrage nécessaire pour terminer."
+  killall Dock
+  killall Finder
+}
 
-echo ""
-echo "ET VOILÀ !"
-echo "Après synchronisation des données Dropbox (seuls les dossiers « Mackup » et « Settings » sont nécessaires dans un premier temps), lancer le script post-cloud.sh"
+install_npm() {
+  echo "Installation des outils de développement Node"
+  npm install -g npm-check-updates
+}
+
+clean() {
+  echo "Derniers nettoyages…"
+  brew cleanup
+  rm -f -r /Library/Caches/Homebrew/*
+}
+
+end() {
+  echo ""
+  echo "ET VOILÀ !"
+}
+
+install_oh_my_zsh() {
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+}
+
+install_oh_my_zsh
+
+install_brew
+
+install_sdk
+
+install_dropbox
+
+install_brew_bundle
+
+update_mac_os_properties
+
+install_npm
+
+end
