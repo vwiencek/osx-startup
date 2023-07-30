@@ -12,19 +12,19 @@ export PATH=$PATH:$FLUTTER_HOME/bin
 export SPARK_HOME=/Users/vwiencek/dev/spark
 
 export ANDROID_HOME=/Users/$(whoami)/Library/Android/sdk
-export GRAALVM_HOME=/Users/vwiencek/.sdkman/candidates/java/20.0.1-graal
+export GRAALVM_HOME=/Users/vwiencek/.sdkman/candidates/java/20.0.2-graalce
 export GRAALVM_DIR=$GRAALVM_HOME
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:$GRAALVM_DIR/bin
 
 # Alias Docker
 alias dc='docker-compose'
-alias j20='sdk use java 20.0.1-tem'
-alias j17='sdk use java 17.0.7-tem'
-alias gvm20='sdk use java 20.0.1-graalce'
-alias gvm17='sdk use java 17.0.7-graalce'
+alias j20='sdk use java 20.0.2-tem'
+alias j17='sdk use java 17.0.8-tem'
+alias gvm20='sdk use java 20.0.2-graalce'
+alias gvm17='sdk use java 17.0.8-graalce'
 alias ls='ls -ahlG'
-alias node18='nvm use 18.16.1'
+alias node18='nvm use 18.17.0'
 
 alias brewup='brew update; brew upgrade; brew cleanup; brew doctor'
 alias docker_ds='docker run -it -v /Users/vwiencek/dev:/home/jovyan/work --rm -p 8888:8888 jupyter/all-spark-notebook'

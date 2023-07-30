@@ -9,8 +9,8 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 install_sdk () {
   echo 'Installing SDKMan'
-
   curl -s "https://get.sdkman.io" | bash
+  sed -i '' -e 's/sdkman_auto_answer=false/sdkman_auto_answer=true/g' $HOME/.sdkman/etc/config
   source "$HOME/.sdkman/bin/sdkman-init.sh"
 }
 
@@ -225,7 +225,7 @@ update_mac_os_properties() {
   killall Finder
 }
 
-install_npm() {
+install_nvm() {
   echo "Installation des outils de développement Node"
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
   export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
@@ -258,25 +258,40 @@ post_install() {
 install_java() {
   sdk install gradle 
   sdk install maven
+
+
+  sdk install java 20.0.2-tem
+  sdk install java 17.0.8-tem
+  sdk install java 20.0.2-graalce
+  sdk install java 17.0.8-graalce
 }
 
 install_node() {
-  nvm install 18
+  nvm install 18.17.0
+}
+
+install_python() {
+  brew install python
+  pip3 install --user pipenv
+  pip3 install --upgrade setuptools
+  pip3 install --upgrade pip
+  brew install pyenv
 }
 
 install_brew
-install_zsh
 install_sdk
 install_dropbox
 install_brew_bundle
 update_mac_os_properties
-install_npm
-
-end
+install_nvm
+install_python
+install_zsh
 
 post_install
 
 install_node
 install_java
+
+end
 
 zsh
