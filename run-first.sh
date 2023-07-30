@@ -155,9 +155,9 @@ sudo defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 sudo defaults write -g ApplePressAndHoldEnabled -bool false
 
 # Répétition touches plus rapide
-sudo defaults write NSGlobalDomain KeyRepeat -int 1
+# sudo defaults write NSGlobalDomain KeyRepeat -int 1
 # Délai avant répétition des touches
-sudo defaults write NSGlobalDomain InitialKeyRepeat -int 10
+# sudo defaults write NSGlobalDomain InitialKeyRepeat -int 10
 
 # Trackpad : toucher pour cliquer
 sudo defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true

@@ -25,7 +25,9 @@ brew 'wget'
 brew 'zsh'
 brew 'zsh-autosuggestions'
 brew 'zsh-syntax-highlighting'
+
 cask 'iterm2'
+cask 'jetbrains-toolbox'
 
 # Backup et synchro
 brew 'mackup'
