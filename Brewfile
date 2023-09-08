@@ -54,3 +54,5 @@ cask 'steam'
 # Communication
 cask 'signal'
 cask 'whatsapp'
+cask 'blender'
+cask 'istat-menus'
