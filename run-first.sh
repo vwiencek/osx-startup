@@ -1,48 +1,12 @@
 #!/bin/sh
+#
+# Réglages macOS (Finder, Dock, clavier, trackpad, Safari, …).
+# L'installation de l'environnement de dev est dans bootstrap.sh.
 
 # Demande du mot de passe administrateur dès le départ
 sudo -v
-# Keep-alive: met à jour le timestamp de `sudo`
-# tant que `post-install.sh` n'est pas terminé
+# Keep-alive : met à jour le timestamp de `sudo` tant que le script tourne
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-
-
-install_sdk () {
-  echo 'Installing SDKMan'
-  curl -s "https://get.sdkman.io" | bash
-  sed -i '' -e 's/sdkman_auto_answer=false/sdkman_auto_answer=true/g' $HOME/.sdkman/etc/config
-  source "$HOME/.sdkman/bin/sdkman-init.sh"
-}
-
-install_brew() {
-  echo 'Installing Brew'
-
-  if test ! $(which brew)
-  then
-    echo "Installation de Homebrew"
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  else
-    echo "Brew is already installed"
-  fi
-
-  # Ajout des binaires Homebrew au PATH
-  echo '# Set PATH, MANPATH, etc., for Homebrew.' >> ~/.zprofile
-  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-
-  brew update
-}
-
-install_dropbox() {
-  # Installer Dropbox au plus tôt pour lancer la synchro des settings
-  brew install dropbox
-  echo "Ouverture de Dropbox pour commencer la synchronisation"
-  open -a Dropbox
-}
-
-install_brew_bundle() {
-  brew bundle
-}
 
 update_mac_os_properties() {
   echo "Configuration de quelques paramètres par défaut"
@@ -225,75 +189,7 @@ update_mac_os_properties() {
   killall Finder
 }
 
-install_nvm() {
-  echo "Installation des outils de développement Node"
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
-  export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-}
-
-clean() {
-  echo "Derniers nettoyages…"
-  brew cleanup
-  rm -f -r /Library/Caches/Homebrew/*
-}
-
-end() {
-  echo ""
-  echo "ET VOILÀ !"
-}
-
-install_zsh() {
-  rm ~/.zshrc
-  rm -rf .oh-my-zsh 
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-}
-
-post_install() {
-  cp .env.sh ~/.env.sh
-
-  {
-    echo "source ~/.env.sh"
-  } >> ~/.zshrc
-}
-
-install_java() {
-  sdk install gradle 
-  sdk install maven
-
-  sdk install java 20.0.2-tem
-  sdk install java 17.0.8-tem
-  sdk install java 20.0.2-graalce
-  sdk install java 17.0.8-graalce
-}
-
-install_node() {
-  nvm install 18.17.0
-}
-
-install_python() {
-  brew install python
-  pip3 install --user pipenv
-  pip3 install --upgrade setuptools
-  pip3 install --upgrade pip
-  brew install pyenv
-}
-
-install_brew
-install_sdk
-install_dropbox
-install_brew_bundle
 update_mac_os_properties
-install_nvm
-install_python
 
-install_zsh
-
-post_install
-
-install_node
-install_java
-
-end
-
-zsh
+echo ""
+echo "Réglages macOS appliqués — un redémarrage est conseillé."

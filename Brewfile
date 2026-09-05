@@ -1,9 +1,7 @@
 # Taps
-tap 'homebrew/cask'
-tap 'homebrew/cask-fonts'
-tap 'homebrew/cask-versions'
-tap 'homebrew/bundle'
-tap 'nhoizey/cask'
+tap 'antoniorodr/memo'
+tap 'oven-sh/bun'
+tap 'zml/zml'
 
 # Définir où placer les applications installées
 cask_args appdir: '/Applications'
@@ -11,48 +9,66 @@ cask_args appdir: '/Applications'
 # Permettre l'installation d'applications de l'AppStore
 brew 'mas'
 
-# Réseau
+# CLI de base
+brew 'git'
 brew 'curl'
-brew 'wget'  
-brew 'dnsmasq', restart_service: true
-brew 'openssh'
-brew 'openssl'
-brew 'openvpn'
-brew 'bitwarden'
-brew 'rsync'
 brew 'wget'
+brew 'rsync'
+brew 'ripgrep'
+brew 'tmux'
+brew 'gh'
+brew 'nmap'
 
-brew 'zsh'
-brew 'zsh-completions'
-brew 'zsh-autosuggestions'
-brew 'zsh-syntax-highlighting'
+# Langages & dev
+brew 'go'
+brew 'python'
+brew 'oven-sh/bun/bun'
+brew 'pmd'
+brew 'code-server'
 
+# Cloud & réseau
+brew 'azure-cli'
+brew 'cloudflared'
+brew 'tailscale'
+
+# Divers
+brew 'antoniorodr/memo/memo'
+brew 'zml/zml/llmd'
+
+# Terminal & IDE
 cask 'iterm2'
+cask 'visual-studio-code'
 cask 'jetbrains-toolbox'
+
+# IA
+cask 'antigravity'      # Google Antigravity (fournit la CLI agy)
+cask 'lm-studio'
+cask 'ollama-app'
+
+# Conteneurs
+cask 'docker-desktop'
 
 # Web
 cask 'firefox'
 cask 'google-chrome'
 
-# Développement
-brew 'git'
-brew 'node'
-cask 'visual-studio-code'
+# Outils
+cask 'dropbox'
+cask 'bitwarden'
+cask 'ngrok'
+cask 'teamviewer'
 
-# Vidéos
+# Média & création
 brew 'ffmpeg'
-cask 'handbrake'
 cask 'vlc'
-
-# Photo
-cask 'adobe-creative-cloud'
-cask 'docker'
-
-# Divertissement
-cask 'steam'
+cask 'handbrake'
+cask 'obs'
+cask 'blender'
+cask 'spotify'
 
 # Communication
 cask 'signal'
 cask 'whatsapp'
-cask 'blender'
-cask 'istat-menus'
+cask 'telegram'
+cask 'slack'
+cask 'notion'
