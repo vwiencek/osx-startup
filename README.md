@@ -1,62 +1,73 @@
-## Utilisation
+# 🚀 osx-startup
 
-### Installation initiale de l'OS vierge
-
-1. Installez macOS
-1. Lancez le Mac App Store et connectez-vous à votre compte
-
-⚠️ Attention, si vous migrez depuis une autre machine ou faites une réinstallation complète, utilisez tant que possible le même _username_, sinon Mackup ne fera pas les bonnes actions pour récupérer les paramètres des applications.
-
-Tout-en-un (environnement de dev + réglages macOS) :
+Configuration complète d'un Mac neuf en une seule commande : environnement de
+développement, applications, dotfiles et réglages macOS.
 
 ```shell
-$ curl -sfL https://raw.githubusercontent.com/vwiencek/osx-startup/main/run.sh | sh
+curl -sfL https://raw.githubusercontent.com/vwiencek/osx-startup/main/run.sh | sh
 ```
 
-Ou séparément :
+☕ Lancez la commande, validez l'installation des Command Line Tools et le mot de
+passe sudo, puis laissez faire. Le script est **idempotent** : relançable sans danger.
+
+## Ce qui est installé
+
+| | |
+|---|---|
+| 🛠 **Outils** | Xcode CLT, Homebrew, git, gh, ripgrep, tmux, go, bun, azure-cli, cloudflared, tailscale, nmap, ffmpeg… |
+| 🖥 **Apps** | iTerm2, VS Code, JetBrains Toolbox, Docker Desktop, Chrome, Firefox, Dropbox, Bitwarden, Slack, Notion, Signal, WhatsApp, Telegram, Spotify, VLC, OBS, Blender… |
+| 🤖 **IA** | **Claude Code**, **Codex CLI**, **Antigravity**, **LM Studio**, **Ollama**, openclaw |
+| ☕️ **Java** | SDKMAN : java 23-tem / 21-tem / GraalVM CE, gradle, maven |
+| 🟢 **Node** | nvm + Node LTS |
+| 🐚 **Shell** | oh-my-zsh + dotfiles (`.zshrc`, `.zshenv`, `.zprofile`, `.env.sh`) |
+| ⚙️ **macOS** | Finder, Dock, clavier, trackpad, Safari, screenshots… |
+
+## Installation à la carte
 
 ```shell
 # Environnement de dev uniquement (brew, SDKMAN, nvm, Claude Code, Codex, dotfiles…)
-$ curl -sfL https://raw.githubusercontent.com/vwiencek/osx-startup/main/bootstrap.sh | bash
+curl -sfL https://raw.githubusercontent.com/vwiencek/osx-startup/main/bootstrap.sh | bash
 
 # Réglages macOS uniquement (Finder, Dock, clavier…)
-$ ./run-first.sh
+./run-first.sh
+
+# Dotfiles uniquement
+cp .zshrc .zshenv .zprofile .env.sh ~/
 ```
 
-### Ce que `bootstrap.sh` installe
+## Structure du repo
 
-- **Xcode Command Line Tools**
-- **Homebrew** + le `Brewfile` : CLI (git, gh, ripgrep, tmux, go, bun, azure-cli, tailscale…)
-  et casks — iTerm2, VS Code, JetBrains Toolbox, **Antigravity**, **LM Studio**, **Ollama**,
-  Docker Desktop, navigateurs, Dropbox, apps de communication…
-- **oh-my-zsh** + les dotfiles du repo (`.zshrc`, `.zshenv`, `.zprofile`, `.env.sh`)
-- **SDKMAN** : java (23-tem, 21-tem, graalce), gradle, maven
-- **nvm** : Node LTS
-- **Claude Code** (installateur natif), **Codex CLI** et **openclaw** (npm)
+| Fichier | Rôle |
+|---|---|
+| `run.sh` | Point d'entrée : télécharge le repo puis enchaîne `bootstrap.sh` et `run-first.sh` |
+| `bootstrap.sh` | Environnement de dev complet (idempotent) |
+| `run-first.sh` | Réglages macOS (`defaults write`) |
+| `Brewfile` | Formules et casks Homebrew |
+| `.zshrc` / `.zshenv` / `.zprofile` / `.env.sh` | Dotfiles zsh |
 
-Le script est idempotent : relançable sans danger. À la fin, il liste les
-logins à faire à la main (`gh auth login`, `claude`, `codex login`, Dropbox…).
+## ⚡️ Un shell qui démarre en 0,7 s
 
-## Configuration zsh
+Les dotfiles sont optimisés pour un démarrage quasi instantané (~0,7 s au lieu de 8–14 s) :
 
-Optimisée pour un démarrage rapide du shell (~0.7s au lieu de 8–14s) :
+- **nvm** (~5 s) — lazy-load : `nvm`/`node`/`npm`/`npx` sont des stubs qui chargent
+  le vrai `nvm.sh` au premier appel.
+- **SDKMAN** (~2 s) — lazy-load : les candidats courants (`java`, `gradle`, …) sont mis
+  directement sur le PATH ; `sdkman-init.sh` ne se charge qu'au premier `sdk`.
+- **oh-my-zsh** — `ZSH_DISABLE_COMPFIX=true` saute l'audit de sécurité des complétions.
+- La **sauvegarde Dropbox** de `.env.sh` tourne en tâche de fond détachée pour ne
+  jamais bloquer le prompt.
 
-| Fichier | Destination | Rôle |
-|---|---|---|
-| `.zshrc` | `~/.zshrc` | oh-my-zsh (`ZSH_DISABLE_COMPFIX=true` pour sauter l'audit compaudit) |
-| `.env.sh` | `~/.env.sh` | PATH, aliases, brew, SDKMAN + nvm (chargés paresseusement) |
-| `.zshenv` | `~/.zshenv` | Exporte `GITHUB_PERSONAL_ACCESS_TOKEN` via `gh` pour le plugin GitHub MCP |
-| `.zprofile` | `~/.zprofile` | Entrées PATH JetBrains Toolbox / Antigravity |
+## Après l'installation
 
-Optimisations :
-
-- **nvm** (~5s) — lazy-load : `nvm`/`node`/`npm`/`npx` sont des fonctions stub qui chargent le vrai `nvm.sh` au premier appel.
-- **SDKMAN** (~2s) — lazy-load : les candidats courants (`java`, `gradle`, …) sont mis directement sur le PATH ; `sdkman-init.sh` ne se charge qu'au premier `sdk`.
-- **oh-my-zsh** — `ZSH_DISABLE_COMPFIX=true` saute l'audit de sécurité des répertoires de complétion.
-- La **sauvegarde Dropbox** de `.env.sh` tourne en tâche de fond détachée pour ne jamais bloquer le prompt.
-
-Installation :
+Quelques logins restent à faire à la main :
 
 ```shell
-$ cp .zshrc .zshenv .zprofile .env.sh ~/
+gh auth login     # GitHub (requis par ~/.zshenv pour le token MCP)
+claude            # Claude Code
+codex login       # Codex
 ```
+
+…et se connecter dans Dropbox, JetBrains Toolbox et Antigravity.
+
+> ⚠️ Si vous migrez depuis une autre machine, gardez le même _username_ macOS
+> pour que la récupération des paramètres se passe bien.
